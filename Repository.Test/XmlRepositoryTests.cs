@@ -95,5 +95,44 @@ namespace Repository.Test
                 Assert.IsTrue(result.Count() == 3);
             }
         }
+
+        [TestClass]
+        public class InsertTests
+        {
+            [TestMethod]
+            [ExpectedException(typeof(ApplicationException), "Id already exists.")]
+            public void DuplicateAdd_ThrowsException()
+            {
+                var xmlSerializationSvc = GetMockedXmlSerializationService();
+                xmlSerializationSvc.Setup(x => x.ReadXml(It.IsAny<string>()))
+                                   .Returns(new XmlDataWrapper<XmlTestDataItem>());
+                
+                var repo = new XmlRepository<XmlDataWrapper<XmlTestDataItem>, XmlTestDataItem>
+                    ("foo.bar", xmlSerializationSvc.Object);
+                var item = new XmlTestDataItem() {Id = 200, Foo = "bar"};
+                
+                repo.Insert(item);
+                repo.Insert(item);
+            }
+
+            [TestMethod]
+            public void AddItemGetItem_ReturnsNewItem()
+            {
+                var xmlSerializationSvc = GetMockedXmlSerializationService();
+                xmlSerializationSvc.Setup(x => x.ReadXml(It.IsAny<string>()))
+                                   .Returns(new XmlDataWrapper<XmlTestDataItem>());
+
+                var repo = new XmlRepository<XmlDataWrapper<XmlTestDataItem>, XmlTestDataItem>
+                    ("foo.bar", xmlSerializationSvc.Object);
+                var item = new XmlTestDataItem() { Id = 200, Foo = "bar" };
+
+                repo.Insert(item);
+                var result = repo.Get(200);
+
+                Assert.IsTrue(result != null);
+                Assert.IsTrue(result.Id == 200);
+                Assert.IsTrue(result.Foo == "bar");
+            }
+        }
     }
 }

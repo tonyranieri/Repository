@@ -1,4 +1,5 @@
-﻿using Repository.Data;
+﻿using System;
+using Repository.Data;
 using Repository.Serialization;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,9 @@ namespace Repository
 
         public void Insert(TItem entity)
         {
+            var item = Get(entity.Id);
+            if (!EqualityComparer<TItem>.Default.Equals(item, default(TItem)))
+                throw new ApplicationException("Id already exists.");
             _data.Items.Add(entity);
         }
 
