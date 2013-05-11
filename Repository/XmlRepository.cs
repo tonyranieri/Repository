@@ -54,20 +54,39 @@ namespace Repository
 
         public void Insert(TItem entity)
         {
+            if(IsNullEntity(entity))
+                throw new NullReferenceException("Entity cannot be null.");
+
             var item = Get(entity.Id);
-            if (!EqualityComparer<TItem>.Default.Equals(item, default(TItem)))
+            if(!IsNullEntity(item))
                 throw new ApplicationException("Id already exists.");
+
             _data.Items.Add(entity);
         }
 
         public void Remove(TItem entity)
         {
+            if (IsNullEntity(entity))
+                throw new NullReferenceException("Entity cannot be null.");
+
+            var item = Get(entity.Id);
+            if (IsNullEntity(item))
+                throw new ApplicationException("Id does not exist.");
+
             _data.Items.Remove(entity);
         }
 
         public void SaveChanges()
         {
             XmlSerializationService.WriteXml(_fileName, _data);
+        }
+
+        #endregion
+        #region Private Methods
+
+        private static bool IsNullEntity(TItem entity)
+        {
+            return EqualityComparer<TItem>.Default.Equals(entity, default(TItem));
         }
 
         #endregion
